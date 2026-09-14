@@ -17,6 +17,7 @@ func Register(
 	logger *slog.Logger,
 	userHandler *handler.UserHandler,
 	productHandler *handler.ProductHandler,
+	wantedHandler *handler.WantedHandler,
 	addressHandler *handler.AddressHandler,
 	cartHandler *handler.CartHandler,
 	orderHandler *handler.OrderHandler,
@@ -45,6 +46,7 @@ func Register(
 	{
 		RegisterUserRoutes(api, userHandler, cfg.JWTSecret)
 		RegisterProductRoutes(api, productHandler, cfg.JWTSecret)
+		RegisterWantedRoutes(api, wantedHandler, cfg.JWTSecret)
 		RegisterAddressRoutes(api, addressHandler, cfg.JWTSecret)
 		RegisterCartRoutes(api, cartHandler, cfg.JWTSecret)
 		RegisterOrderRoutes(api, orderHandler, cfg.JWTSecret)

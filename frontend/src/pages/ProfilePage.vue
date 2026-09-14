@@ -27,6 +27,25 @@
           <EmptyState v-else description="还没有发布过商品" action-text="去发布" @action="$router.push('/products/create')" />
         </div>
       </el-tab-pane>
+      <el-tab-pane label="我的求购" name="wanteds">
+        <div v-loading="subLoading">
+          <el-table :data="myWanteds" v-if="myWanteds.length">
+            <el-table-column prop="title" label="求购需求" />
+            <el-table-column label="预算" width="180">
+              <template #default="{ row }">¥{{ formatPrice(row.budget_min) }} ~ ¥{{ formatPrice(row.budget_max) }}</template>
+            </el-table-column>
+            <el-table-column prop="city" label="城市" width="100" />
+            <el-table-column label="状态" width="100"><template #default="{ row }"><StatusBadge type="wanted" :value="row.status" /></template></el-table-column>
+            <el-table-column label="操作" width="160">
+              <template #default="{ row }">
+                <el-button link type="primary" @click="$router.push(`/wanteds/${row.id}`)">查看</el-button>
+                <el-button v-if="row.status === 'open'" link type="warning" @click="closeWanted(row.id)">关闭</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <EmptyState v-else description="还没有发布过求购" action-text="去发布" @action="$router.push('/wanteds/create')" />
+        </div>
+      </el-tab-pane>
       <el-tab-pane label="我的收藏" name="favorites">
         <div v-loading="subLoading" class="fav-grid">
           <ProductCard v-for="p in favorites" :key="p.id" :product="p" />
@@ -87,6 +106,7 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as productApi from '../api/product'
+import * as wantedApi from '../api/wanted'
 import * as addressApi from '../api/address'
 import { useUserStore } from '../stores/userStore'
 import ProductCard from '../components/ProductCard.vue'
@@ -99,6 +119,7 @@ const tab = ref('products')
 const loading = ref(false)
 const subLoading = ref(false)
 const myProducts = ref<any[]>([])
+const myWanteds = ref<any[]>([])
 const favorites = ref<any[]>([])
 const addresses = ref<any[]>([])
 const profileDialog = ref(false)
@@ -110,7 +131,7 @@ onMounted(async () => {
   loading.value = true
   try {
     if (!userStore.user) await userStore.fetchProfile()
-    await Promise.all([loadProducts(), loadFavorites(), loadAddresses()])
+    await Promise.all([loadProducts(), loadWanteds(), loadFavorites(), loadAddresses()])
   } finally {
     loading.value = false
   }
@@ -124,6 +145,17 @@ async function loadProducts() {
   } finally {
     subLoading.value = false
   }
+}
+
+async function loadWanteds() {
+  const res: any = await wantedApi.myWanteds({ page: 1, page_size: 50 })
+  myWanteds.value = res.data.list || []
+}
+
+async function closeWanted(id: number) {
+  await wantedApi.closeWanted(id)
+  ElMessage.success('求购已关闭')
+  loadWanteds()
 }
 
 async function loadFavorites() {

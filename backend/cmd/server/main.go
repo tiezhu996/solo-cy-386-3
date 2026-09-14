@@ -41,6 +41,7 @@ func main() {
 	// 仓储层装配。
 	userRepo := repository.NewUserRepository(db)
 	productRepo := repository.NewProductRepository(db)
+	wantedRepo := repository.NewWantedRepository(db)
 	favoriteRepo := repository.NewFavoriteRepository(db)
 	addressRepo := repository.NewAddressRepository(db)
 	cartRepo := repository.NewCartRepository(db)
@@ -52,6 +53,7 @@ func main() {
 	// 服务层装配（构造器注入）。
 	userService := service.NewUserService(userRepo, logger, cfg.JWTSecret, cfg.JWTExpireDuration())
 	productService := service.NewProductService(productRepo, favoriteRepo, logger)
+	wantedService := service.NewWantedService(wantedRepo, logger)
 	addressService := service.NewAddressService(addressRepo, logger)
 	cartService := service.NewCartService(cartRepo, productRepo, logger)
 	orderService := service.NewOrderService(db, orderRepo, productRepo, addressRepo, cartRepo, logger)
@@ -63,6 +65,7 @@ func main() {
 	// 处理器装配。
 	userHandler := handler.NewUserHandler(userService)
 	productHandler := handler.NewProductHandler(productService)
+	wantedHandler := handler.NewWantedHandler(wantedService)
 	addressHandler := handler.NewAddressHandler(addressService)
 	cartHandler := handler.NewCartHandler(cartService)
 	orderHandler := handler.NewOrderHandler(orderService)
@@ -77,7 +80,7 @@ func main() {
 	}
 	engine := gin.New()
 	router.Register(engine, cfg, logger,
-		userHandler, productHandler, addressHandler, cartHandler, orderHandler,
+		userHandler, productHandler, wantedHandler, addressHandler, cartHandler, orderHandler,
 		messageHandler, reviewHandler, auditHandler, wsHandler, uploadHandler, auditService)
 
 	server := &http.Server{

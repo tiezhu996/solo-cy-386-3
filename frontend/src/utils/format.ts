@@ -52,6 +52,14 @@ export function formatProductStatus(text: string): string {
   return map[text] ?? text
 }
 
+export function formatWantedStatus(text: string): string {
+  const map: Record<string, string> = {
+    open: '求购中',
+    closed: '已关闭'
+  }
+  return map[text] ?? text
+}
+
 export function formatRating(text: string): string {
   const map: Record<string, string> = {
     good: '好评',

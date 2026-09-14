@@ -26,6 +26,8 @@ const (
 	CodeFileTooLarge       = 10015 // 文件过大
 	CodeUnsupportedMedia   = 10016 // 不支持的图片格式
 	CodeRedisUnavailable   = 10017 // 消息通道不可用
+	CodeWantedNotFound     = 10018 // 求购需求不存在
+	CodeWantedClosed       = 10019 // 求购需求已关闭
 )
 
 // ErrorCodeMessages 错误码对应的默认提示文案（constants/messages.go 中另有接口文案）。
@@ -54,4 +56,6 @@ var ErrorCodeMessages = map[int]string{
 	CodeFileTooLarge:       "上传图片不能超过 5MB",
 	CodeUnsupportedMedia:   "仅支持 jpg/jpeg/png/webp 图片",
 	CodeRedisUnavailable:   "实时消息通道暂不可用",
+	CodeWantedNotFound:     "求购需求不存在",
+	CodeWantedClosed:       "求购需求已关闭",
 }

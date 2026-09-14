@@ -54,6 +54,28 @@ func FromProduct(p *model.Product, isFavorite bool) ProductVO {
 	}
 }
 
+// FromWanted 求购需求实体转视图对象。
+func FromWanted(w *model.Wanted) WantedVO {
+	var user *UserVO
+	if w.User != nil {
+		user = FromUser(w.User)
+	}
+	return WantedVO{
+		ID:          w.ID,
+		UserID:      w.UserID,
+		Title:       w.Title,
+		Category:    w.Category,
+		Condition:   w.Condition,
+		BudgetMin:   w.BudgetMin,
+		BudgetMax:   w.BudgetMax,
+		City:        w.City,
+		Description: w.Description,
+		Status:      w.Status,
+		CreatedAt:   formatTime(w.CreatedAt),
+		User:        user,
+	}
+}
+
 // FromAddress 地址实体转视图对象。
 func FromAddress(a *model.Address) AddressVO {
 	return AddressVO{

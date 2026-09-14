@@ -33,6 +33,24 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ
 );
+-- wanteds
+CREATE TABLE IF NOT EXISTS wanteds (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    title VARCHAR(128) NOT NULL,
+    category VARCHAR(32) NOT NULL DEFAULT 'other',
+    condition VARCHAR(32) NOT NULL DEFAULT 'almost_new',
+    budget_min NUMERIC(12,2) NOT NULL,
+    budget_max NUMERIC(12,2) NOT NULL,
+    city VARCHAR(64) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'open',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_wanteds_user_id ON wanteds (user_id);
+CREATE INDEX IF NOT EXISTS idx_wanteds_status ON wanteds (status);
 -- favorites
 CREATE TABLE IF NOT EXISTS favorites (
     id BIGSERIAL PRIMARY KEY,

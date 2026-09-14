@@ -29,6 +29,7 @@ func Connect(cfg *config.Config, log *slog.Logger) (*gorm.DB, error) {
 	models := []interface{}{
 		&model.User{},
 		&model.Product{},
+		&model.Wanted{},
 		&model.Favorite{},
 		&model.Address{},
 		&model.CartItem{},

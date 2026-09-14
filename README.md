@@ -23,10 +23,11 @@ docker compose up -d --build
 1. 商品发布：名称、描述、原价、售价、成色、分类、多图上传
 2. 商品浏览与搜索：瀑布流展示、关键词/分类/价格区间/成色筛选、价格与发布时间排序
 3. 商品详情：图片轮播、卖家信息、收藏、联系卖家（站内私信）
-4. 购物车与下单：加购、选择收货地址、确认下单、订单状态流转（待付款→待发货→已发货→已收货→已完成）
-5. 用户私信：买卖双方站内文字沟通，WebSocket 实时推送
-6. 评价系统：交易完成后互评（好评/中评/差评），影响信用积分
-7. 个人中心：我的发布、我的收藏、我的订单、收货地址管理、信用积分展示
+4. 求购需求：登录发布求购（标题、分类、期望成色、预算上下限、所在城市、期望说明），求购大厅关键词/分类/城市筛选并按最新发布排序，发布者可关闭（关闭后不再出现在大厅、详情仍可查看），其他登录者可在详情页联系发布者（站内私信）
+5. 购物车与下单：加购、选择收货地址、确认下单、订单状态流转（待付款→待发货→已发货→已收货→已完成）
+6. 用户私信：买卖双方站内文字沟通，WebSocket 实时推送
+7. 评价系统：交易完成后互评（好评/中评/差评），影响信用积分
+8. 个人中心：我的发布、我的求购、我的收藏、我的订单、收货地址管理、信用积分展示
 
 ## 技术栈
 
@@ -161,6 +162,27 @@ curl -sS -X POST http://localhost:19406/api/v1/products \
 curl -sS "http://localhost:19406/api/v1/products?category=digital&min_price=100&max_price=5000&sort_by=price"
 ```
 
+### 发布求购需求
+
+```bash
+curl -sS -X POST http://localhost:19406/api/v1/wanteds \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"title":"求购 iPhone 13 128G","category":"digital","condition":"almost_new","budget_min":2000,"budget_max":3500,"city":"杭州","description":"希望配件齐全，成色好一点"}'
+```
+
+### 求购大厅（关键词/分类/城市筛选，最新发布在前）
+
+```bash
+curl -sS "http://localhost:19406/api/v1/wanteds?keyword=iPhone&category=digital&city=杭州"
+```
+
+### 我的求购与关闭
+
+```bash
+curl -sS http://localhost:19406/api/v1/wanteds/mine -H "Authorization: Bearer $TOKEN"
+curl -sS -X POST http://localhost:19406/api/v1/wanteds/1/close -H "Authorization: Bearer $TOKEN"
+```
+
 ### 下单与状态流转
 
 ```bash
@@ -287,7 +309,6 @@ curl -sS -X POST http://localhost:19406/api/v1/orders/$ORDER_ID/pay -H "Authoriz
 - `frontend/src/pages/AdminAuditPage.vue`（管理员审计页）
 
 ### 6. 评价等级 ReviewRating（good/neutral/bad）
-
 后端出现位置：
 
 - `backend/internal/constants/enums.go`（定义 + `ValidReviewRating`）
@@ -303,6 +324,27 @@ curl -sS -X POST http://localhost:19406/api/v1/orders/$ORDER_ID/pay -H "Authoriz
 - `frontend/src/components/StatusBadge.vue`
 - `frontend/src/pages/OrdersPage.vue`（评价弹窗）
 - `frontend/src/utils/format.ts`（formatRating）
+
+### 7. 求购状态 WantedStatus（open/closed）
+
+后端出现位置：
+
+- `backend/internal/constants/enums.go`（定义 + `ValidWantedStatus`）
+- `backend/internal/model/wanted.go`（Status 字段默认值 `open`）
+- `backend/internal/service/wanted_service.go`（Create 默认 open、Close 状态校验）
+- `backend/internal/repository/wanted_repository.go`（大厅列表按 status=open 过滤）
+- `backend/internal/constants/error_codes.go`（CodeWantedNotFound/CodeWantedClosed）
+- `backend/internal/constants/log_templates.go`（LogWantedCreated/Closed/Viewed）
+- `backend/internal/util/formatters.go`（FormatWantedStatusText）
+
+前端出现位置：
+
+- `frontend/src/constants/index.ts`（WantedStatus/WantedStatusText）
+- `frontend/src/components/StatusBadge.vue`（type="wanted" 状态徽标）
+- `frontend/src/pages/WantedHallPage.vue`、`WantedDetailPage.vue`、`ProfilePage.vue`（我的求购）
+- `frontend/src/utils/format.ts`（formatWantedStatus）
+
+注：求购的成色与分类复用商品枚举 ProductCondition/ProductCategory。
 
 ## 横切关注点
 

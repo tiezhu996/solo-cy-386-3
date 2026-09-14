@@ -43,6 +43,21 @@ export interface ProductVO {
   is_favorite?: boolean
 }
 
+export interface WantedVO {
+  id: number
+  user_id: number
+  title: string
+  category: string
+  condition: string
+  budget_min: number
+  budget_max: number
+  city: string
+  description: string
+  status: string
+  created_at: string
+  user?: UserVO
+}
+
 export interface AddressVO {
   id: number
   receiver_name: string

@@ -85,6 +85,18 @@ func FormatProductStatusText(status string) string {
 	}
 }
 
+// FormatWantedStatusText 求购需求状态 → 中文文案。
+func FormatWantedStatusText(status string) string {
+	switch status {
+	case "open":
+		return "求购中"
+	case "closed":
+		return "已关闭"
+	default:
+		return "未知"
+	}
+}
+
 // FormatReviewRatingText 评价等级 → 中文文案。
 func FormatReviewRatingText(rating string) string {
 	switch rating {

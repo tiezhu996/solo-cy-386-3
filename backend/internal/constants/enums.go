@@ -36,6 +36,12 @@ const (
 	ProductStatusOffShelf string = "off_shelf" // 已下架
 )
 
+// WantedStatus 求购需求状态枚举。
+const (
+	WantedStatusOpen   string = "open"   // 求购中
+	WantedStatusClosed string = "closed" // 已关闭
+)
+
 // UserRole 用户角色枚举。
 const (
 	UserRoleUser  string = "user"  // 普通用户
@@ -95,6 +101,11 @@ func ValidProductStatus(status string) bool {
 		return true
 	}
 	return false
+}
+
+// ValidWantedStatus 校验求购需求状态值是否合法。
+func ValidWantedStatus(status string) bool {
+	return status == WantedStatusOpen || status == WantedStatusClosed
 }
 
 // ValidUserRole 校验角色值是否合法。

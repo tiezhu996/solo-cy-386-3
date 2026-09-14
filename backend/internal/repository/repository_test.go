@@ -16,7 +16,7 @@ func newTestDB(t *testing.T) *gorm.DB {
 		t.Fatalf("open sqlite: %v", err)
 	}
 	models := []interface{}{
-		&model.User{}, &model.Product{}, &model.Favorite{}, &model.Address{},
+		&model.User{}, &model.Product{}, &model.Wanted{}, &model.Favorite{}, &model.Address{},
 		&model.CartItem{}, &model.Order{}, &model.Message{}, &model.Review{}, &model.AuditLog{},
 	}
 	if err := db.AutoMigrate(models...); err != nil {

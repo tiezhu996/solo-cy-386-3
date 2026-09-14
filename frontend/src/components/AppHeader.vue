@@ -5,6 +5,7 @@
       <nav class="nav">
         <router-link to="/">首页</router-link>
         <router-link to="/search">逛逛</router-link>
+        <router-link to="/wanteds">求购大厅</router-link>
         <router-link v-if="userStore.isLoggedIn" to="/products/create">发布闲置</router-link>
         <router-link v-if="userStore.isLoggedIn" to="/orders">我的订单</router-link>
         <router-link v-if="userStore.isLoggedIn" to="/messages">

@@ -70,6 +70,16 @@ export const ProductStatusText: Record<string, string> = {
   [ProductStatus.OFF_SHELF]: '已下架'
 }
 
+export const WantedStatus = {
+  OPEN: 'open',
+  CLOSED: 'closed'
+} as const
+
+export const WantedStatusText: Record<string, string> = {
+  [WantedStatus.OPEN]: '求购中',
+  [WantedStatus.CLOSED]: '已关闭'
+}
+
 export const UserRole = {
   USER: 'user',
   ADMIN: 'admin'
