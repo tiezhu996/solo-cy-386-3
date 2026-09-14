@@ -3,11 +3,12 @@ package model
 import "time"
 
 // Message 站内私信实体：买卖双方就商品细节沟通，通过 WebSocket 实时推送。
+// ProductID 可空：求购需求等非商品场景发起的会话不关联商品。
 type Message struct {
 	ID         uint      `gorm:"primaryKey" json:"id"`
 	SenderID   uint      `gorm:"not null;index" json:"sender_id"`
 	ReceiverID uint      `gorm:"not null;index" json:"receiver_id"`
-	ProductID  uint      `gorm:"not null;index" json:"product_id"`
+	ProductID  *uint     `gorm:"index" json:"product_id"`
 	Content    string    `gorm:"size:1000;not null" json:"content"`
 	IsRead     bool      `gorm:"not null;default:false" json:"is_read"`
 	CreatedAt  time.Time `json:"created_at"`

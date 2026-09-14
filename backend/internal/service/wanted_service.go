@@ -52,7 +52,7 @@ func (s *WantedService) Create(userID uint, req dto.WantedCreateRequest) (*model
 	return wanted, nil
 }
 
-// Close 发布者关闭求购需求（仅本人可操作，重复关闭返回冲突）。
+// Close 发布者关闭求购需求（仅本人可操作；原子条件更新保证并发下只有一个请求成功，重复关闭返回冲突）。
 func (s *WantedService) Close(userID, wantedID uint) (*model.Wanted, error) {
 	wanted, err := s.wantedRepo.GetByID(wantedID)
 	if err != nil {
@@ -64,13 +64,14 @@ func (s *WantedService) Close(userID, wantedID uint) (*model.Wanted, error) {
 	if wanted.UserID != userID {
 		return nil, util.NewAppError(constants.CodeForbidden, "求购关闭失败：只有发布者（用户 id="+fmt.Sprint(wanted.UserID)+"）可关闭该求购需求", nil)
 	}
-	if wanted.Status == constants.WantedStatusClosed {
+	affected, err := s.wantedRepo.UpdateStatusIfCurrent(wantedID, constants.WantedStatusOpen, constants.WantedStatusClosed)
+	if err != nil {
+		return nil, fmt.Errorf("close wanted %d: %w", wantedID, err)
+	}
+	if affected == 0 {
 		return nil, util.NewAppError(constants.CodeWantedClosed, "求购关闭失败：求购需求 id="+fmt.Sprint(wantedID)+" 已关闭", nil)
 	}
 	wanted.Status = constants.WantedStatusClosed
-	if err := s.wantedRepo.Update(wanted); err != nil {
-		return nil, fmt.Errorf("close wanted %d: %w", wantedID, err)
-	}
 	s.logger.Info(constants.LogWantedClosed, "wanted_id", wantedID, "user_id", userID, "status", wanted.Status)
 	return wanted, nil
 }

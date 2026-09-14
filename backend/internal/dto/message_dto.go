@@ -1,9 +1,9 @@
 package dto
 
-// MessageSendRequest 发送私信入参。
+// MessageSendRequest 发送私信入参（product_id 可选：求购会话不关联商品）。
 type MessageSendRequest struct {
 	ReceiverID uint   `json:"receiver_id" binding:"required"`
-	ProductID  uint   `json:"product_id" binding:"omitempty"`
+	ProductID  *uint  `json:"product_id" binding:"omitempty"`
 	Content    string `json:"content" binding:"required,min=1,max=1000"`
 }
 

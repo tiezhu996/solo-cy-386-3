@@ -61,6 +61,19 @@ func TestWantedServiceCreate(t *testing.T) {
 		}
 	})
 
+	t.Run("zero_budget_min_ok", func(t *testing.T) {
+		req := validWantedReq()
+		req.BudgetMin = 0
+		w, err := svc.Create(1, req)
+		if err != nil {
+			t.Fatalf("Create() with zero budget_min error: %v", err)
+		}
+		got, _ := svc.GetDetail(w.ID)
+		if got.BudgetMin != 0 {
+			t.Fatalf("expected budget_min 0 persisted, got %v", got.BudgetMin)
+		}
+	})
+
 	t.Run("budget_inverted_rejected", func(t *testing.T) {
 		req := validWantedReq()
 		req.BudgetMin, req.BudgetMax = 5000, 1000

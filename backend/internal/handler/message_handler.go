@@ -62,11 +62,15 @@ func (h *MessageHandler) Conversation(c *gin.Context) {
 	}
 	list := make([]dto.MessageVO, 0, len(msgs))
 	for i := range msgs {
+		var productID uint
+		if msgs[i].ProductID != nil {
+			productID = *msgs[i].ProductID
+		}
 		list = append(list, dto.MessageVO{
 			ID:         msgs[i].ID,
 			SenderID:   msgs[i].SenderID,
 			ReceiverID: msgs[i].ReceiverID,
-			ProductID:  msgs[i].ProductID,
+			ProductID:  productID,
 			Content:    msgs[i].Content,
 			IsRead:     msgs[i].IsRead,
 			CreatedAt:  util.FormatTime(msgs[i].CreatedAt),

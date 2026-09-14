@@ -16,6 +16,7 @@ type WantedRepository interface {
 	List(query map[string]interface{}, page, pageSize int) ([]model.Wanted, int64, error)
 	ListByUser(userID uint, page, pageSize int) ([]model.Wanted, int64, error)
 	Update(wanted *model.Wanted) error
+	UpdateStatusIfCurrent(id uint, expectStatus, newStatus string) (int64, error)
 }
 
 type wantedRepo struct {
@@ -92,4 +93,14 @@ func (r *wantedRepo) Update(wanted *model.Wanted) error {
 		return fmt.Errorf("update wanted %d: %w", wanted.ID, err)
 	}
 	return nil
+}
+
+// UpdateStatusIfCurrent 原子条件更新：仅当当前状态为 expectStatus 时才置为 newStatus。
+// 并发关闭场景下数据库行锁保证只有一个请求命中（返回受影响行数 1），其余返回 0。
+func (r *wantedRepo) UpdateStatusIfCurrent(id uint, expectStatus, newStatus string) (int64, error) {
+	res := r.db.Model(&model.Wanted{}).Where("id = ? AND status = ?", id, expectStatus).Update("status", newStatus)
+	if res.Error != nil {
+		return 0, fmt.Errorf("update wanted %d status %s -> %s: %w", id, expectStatus, newStatus, res.Error)
+	}
+	return res.RowsAffected, nil
 }

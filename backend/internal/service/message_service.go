@@ -37,12 +37,16 @@ func (s *MessageService) Send(senderID uint, req dto.MessageSendRequest) (*model
 	if err := s.repo.Create(msg); err != nil {
 		return nil, fmt.Errorf("create message sender=%d receiver=%d: %w", senderID, req.ReceiverID, err)
 	}
+	productID := uint(0)
+	if req.ProductID != nil {
+		productID = *req.ProductID
+	}
 	payload, err := MarshalWSMessage(&WSMessage{
 		Type:       "new_message",
 		MessageID:  msg.ID,
 		SenderID:   senderID,
 		ReceiverID: req.ReceiverID,
-		ProductID:  req.ProductID,
+		ProductID:  productID,
 		Content:    req.Content,
 		CreatedAt:  util.FormatTime(msg.CreatedAt),
 	})
@@ -51,7 +55,7 @@ func (s *MessageService) Send(senderID uint, req dto.MessageSendRequest) (*model
 	} else {
 		s.hub.Publish(req.ReceiverID, payload)
 	}
-	s.logger.Info(constants.LogMessageSent, "message_id", msg.ID, "sender_id", senderID, "receiver_id", req.ReceiverID, "product_id", req.ProductID)
+	s.logger.Info(constants.LogMessageSent, "message_id", msg.ID, "sender_id", senderID, "receiver_id", req.ReceiverID, "product_id", productID)
 	return msg, nil
 }
 
@@ -92,8 +96,8 @@ func (s *MessageService) ListConversations(userID uint) ([]dto.ConversationVO, e
 				LastContent: m.Content,
 				LastTime:  util.FormatTime(m.CreatedAt),
 			}
-			if m.ProductID > 0 {
-				conversations[peerID].ProductID = m.ProductID
+			if m.ProductID != nil && *m.ProductID > 0 {
+				conversations[peerID].ProductID = *m.ProductID
 				if m.Product != nil {
 					conversations[peerID].ProductName = m.Product.Title
 				}
