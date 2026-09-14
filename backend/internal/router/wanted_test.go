@@ -115,6 +115,22 @@ func TestWantedHTTPFlow(t *testing.T) {
 		t.Fatalf("expected 400 for inverted budget, got %d", code)
 	}
 
+	// 预算下限缺失或为空必须被拒绝（必填字段存在性校验）
+	code, _ = doAPIRequest(t, r, http.MethodPost, "/api/v1/wanteds", alice, map[string]interface{}{
+		"title": "求购缺少预算下限的需求", "category": "digital", "condition": "almost_new",
+		"budget_max": 1000, "city": "深圳市", "description": "缺少 budget_min 字段应被拒绝",
+	})
+	if code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing budget_min, got %d", code)
+	}
+	code, _ = doAPIRequest(t, r, http.MethodPost, "/api/v1/wanteds", alice, map[string]interface{}{
+		"title": "求购预算下限为空的需求", "category": "digital", "condition": "almost_new",
+		"budget_min": nil, "budget_max": 1000, "city": "深圳市", "description": "budget_min 为 null 应被拒绝",
+	})
+	if code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for null budget_min, got %d", code)
+	}
+
 	// 预算下限为零可以正常创建
 	code, resp := doAPIRequest(t, r, http.MethodPost, "/api/v1/wanteds", alice, map[string]interface{}{
 		"title": "求购任意价位的旧书", "category": "books", "condition": "lightly_used",

@@ -28,12 +28,14 @@ func newWantedTestService(t *testing.T) *WantedService {
 	return NewWantedService(repository.NewWantedRepository(db), logger)
 }
 
+func f64(v float64) *float64 { return &v }
+
 func validWantedReq() dto.WantedCreateRequest {
 	return dto.WantedCreateRequest{
 		Title:       "求购一台 iPad",
 		Category:    "digital",
 		Condition:   "almost_new",
-		BudgetMin:   1000,
+		BudgetMin:   f64(1000),
 		BudgetMax:   2000,
 		City:        "北京市",
 		Description: "希望成色好一点，配件齐全",
@@ -63,7 +65,7 @@ func TestWantedServiceCreate(t *testing.T) {
 
 	t.Run("zero_budget_min_ok", func(t *testing.T) {
 		req := validWantedReq()
-		req.BudgetMin = 0
+		req.BudgetMin = f64(0)
 		w, err := svc.Create(1, req)
 		if err != nil {
 			t.Fatalf("Create() with zero budget_min error: %v", err)
@@ -74,9 +76,22 @@ func TestWantedServiceCreate(t *testing.T) {
 		}
 	})
 
+	t.Run("budget_min_missing_rejected", func(t *testing.T) {
+		req := validWantedReq()
+		req.BudgetMin = nil
+		if _, err := svc.Create(1, req); err == nil {
+			t.Fatal("expected error for missing budget_min, got nil")
+		} else {
+			appErr, ok := err.(*util.AppError)
+			if !ok || appErr.Code != constants.CodeBadRequest {
+				t.Fatalf("expected CodeBadRequest, got %v", err)
+			}
+		}
+	})
+
 	t.Run("budget_inverted_rejected", func(t *testing.T) {
 		req := validWantedReq()
-		req.BudgetMin, req.BudgetMax = 5000, 1000
+		req.BudgetMin, req.BudgetMax = f64(5000), 1000
 		if _, err := svc.Create(1, req); err == nil {
 			t.Fatal("expected error for inverted budget, got nil")
 		} else {

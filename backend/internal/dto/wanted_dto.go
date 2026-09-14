@@ -1,15 +1,15 @@
 package dto
 
 // WantedCreateRequest 求购需求发布入参。
-// 注意：BudgetMin 不能用 required（validator 会把零值 0 误判为缺失），0 元预算是合法输入。
+// BudgetMin 使用指针：required 对指针判 nil，可区分"字段缺失/null"（拒绝）与"显式填 0"（合法）。
 type WantedCreateRequest struct {
-	Title       string  `json:"title" binding:"required,min=2,max=128"`
-	Category    string  `json:"category" binding:"required,oneof=digital clothing books home sports other"`
-	Condition   string  `json:"condition" binding:"required,oneof=brand_new almost_new lightly_used obviously_used"`
-	BudgetMin   float64 `json:"budget_min" binding:"gte=0"`
-	BudgetMax   float64 `json:"budget_max" binding:"required,gt=0"`
-	City        string  `json:"city" binding:"required,min=2,max=64"`
-	Description string  `json:"description" binding:"required,min=5"`
+	Title       string   `json:"title" binding:"required,min=2,max=128"`
+	Category    string   `json:"category" binding:"required,oneof=digital clothing books home sports other"`
+	Condition   string   `json:"condition" binding:"required,oneof=brand_new almost_new lightly_used obviously_used"`
+	BudgetMin   *float64 `json:"budget_min" binding:"required,gte=0"`
+	BudgetMax   float64  `json:"budget_max" binding:"required,gt=0"`
+	City        string   `json:"city" binding:"required,min=2,max=64"`
+	Description string   `json:"description" binding:"required,min=5"`
 }
 
 // WantedQuery 求购大厅查询入参（关键词/分类/城市筛选，按最新发布排序）。

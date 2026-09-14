@@ -31,15 +31,19 @@ func (s *WantedService) Create(userID uint, req dto.WantedCreateRequest) (*model
 	if !constants.ValidProductCondition(req.Condition) {
 		return nil, util.NewAppError(constants.CodeBadRequest, "求购发布失败：成色 "+req.Condition+" 非法", nil)
 	}
-	if req.BudgetMin > req.BudgetMax {
-		return nil, util.NewAppError(constants.CodeBadRequest, "求购发布失败：预算下限 "+util.FormatPrice(req.BudgetMin)+" 不能大于预算上限 "+util.FormatPrice(req.BudgetMax), nil)
+	if req.BudgetMin == nil {
+		return nil, util.NewAppError(constants.CodeBadRequest, "求购发布失败：预算下限为必填项", nil)
+	}
+	budgetMin := *req.BudgetMin
+	if budgetMin > req.BudgetMax {
+		return nil, util.NewAppError(constants.CodeBadRequest, "求购发布失败：预算下限 "+util.FormatPrice(budgetMin)+" 不能大于预算上限 "+util.FormatPrice(req.BudgetMax), nil)
 	}
 	wanted := &model.Wanted{
 		UserID:      userID,
 		Title:       req.Title,
 		Category:    req.Category,
 		Condition:   req.Condition,
-		BudgetMin:   req.BudgetMin,
+		BudgetMin:   budgetMin,
 		BudgetMax:   req.BudgetMax,
 		City:        req.City,
 		Description: req.Description,
